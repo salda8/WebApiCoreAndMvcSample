@@ -1,281 +1,98 @@
-﻿using System;
-using System.Linq;
-using AutoMapper;
-using WebApiNetCore.Dtos;
-using Microsoft.AspNetCore.JsonPatch;
+﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using WebApiNetCore.Repositories;
+using Microsoft.Extensions.Options;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
+using WebApiNetCore.Dtos;
 using WebApiNetCore.Entities;
 using WebApiNetCore.Models;
-using WebApiNetCore.Helpers;
-using Microsoft.AspNetCore.Authorization;
+using WebApiNetCore.Repositories;
 
 namespace WebApiNetCore.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/[controller]")]
-   // [Route("api/[controller]")]
-    public class InvoicesController : Controller
+    [AuthenticationFilter]
+    public class InvoiceController : Controller
     {
-        private readonly IInvoiceRepository _InvoiceRepository;
-        private readonly IUrlHelper _urlHelper;
+        private readonly IInvoiceRepository invoiceRepository;
+        private readonly IUrlHelper urlHelper;
+        
 
-        public InvoicesController(IUrlHelper urlHelper, IInvoiceRepository InvoiceRepository)
+        public InvoiceController(IUrlHelper urlHelper, IInvoiceRepository InvoiceRepository)
         {
-            _InvoiceRepository = InvoiceRepository;
-            _urlHelper = urlHelper;
+            this.invoiceRepository = InvoiceRepository;
+            this.urlHelper = urlHelper;
+           
         }
-
+        
+        [ProducesResponseType(typeof(IEnumerable<InvoiceDto>), 201)]
         [HttpGet(Name = nameof(GetAllInvoices))]
-        public IActionResult GetAllInvoices([FromQuery] QueryParameters queryParameters)
+        public IActionResult GetAllInvoices([FromQuery, Required] QueryParameters queryParameters)
         {
-            List<InvoiceItem> InvoiceItems = _InvoiceRepository.GetAll(queryParameters).ToList();
-
-            var allItemCount = _InvoiceRepository.Count();
-
-            var paginationMetadata = new
-            {
-                totalCount = allItemCount,
-                pageSize = queryParameters.PageCount,
-                currentPage = queryParameters.Page,
-                totalPages = queryParameters.GetTotalPages(allItemCount)
-            };
-
-            Response.Headers.Add("X-Pagination",
-                Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
-
-            var links = CreateLinksForCollection(queryParameters, allItemCount);
-
-            var toReturn = InvoiceItems.Select(x => ExpandSingleInvoiceItem(x));
-
-            return Ok(new
-            {
-                value = toReturn,
-                links = links
-            });
+            
+            return Ok(invoiceRepository.GetAll(queryParameters).ToList());
         }
 
         [HttpGet]
+        [ProducesResponseType(404)]
+        [ProducesResponseType(typeof(InvoiceDto), 201)]
         [Route("{id:int}", Name = nameof(GetSingleInvoice))]
         public IActionResult GetSingleInvoice(int id)
         {
-            InvoiceItem InvoiceItem = _InvoiceRepository.GetSingle(id);
+            Invoice Invoice = invoiceRepository.GetSingle(id);
 
-            if (InvoiceItem == null)
+            if (Invoice == null)
             {
                 return NotFound();
             }
 
-            return Ok(ExpandSingleInvoiceItem(InvoiceItem));
+            return Ok(Invoice);
         }
 
+        [ValidateModelState]
         [HttpPost(Name = nameof(AddInvoice))]
-        public IActionResult AddInvoice([FromBody] InvoiceCreateDto InvoiceCreateDto)
+        public IActionResult AddInvoice([FromBody,Required] InvoiceCreateDto InvoiceCreateDto)
         {
-            if (InvoiceCreateDto == null)
-            {
-                return BadRequest();
-            }
+            invoiceRepository.Add(Mapper.Map<Invoice>(InvoiceCreateDto));
+            return Ok();
 
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
+            //if (!_InvoiceRepository.Save())
+            //{
+            //    throw new Exception("Creating a Invoiceitem failed on save.");
+            //}
 
-            InvoiceItem toAdd = Mapper.Map<InvoiceItem>(InvoiceCreateDto);
+            //Invoice newInvoiceItem = _InvoiceRepository.GetSingle(toAdd.Id);
 
-            _InvoiceRepository.Add(toAdd);
-
-            if (!_InvoiceRepository.Save())
-            {
-                throw new Exception("Creating a Invoiceitem failed on save.");
-            }
-
-            InvoiceItem newInvoiceItem = _InvoiceRepository.GetSingle(toAdd.Id);
-            
-            return CreatedAtRoute(nameof(GetSingleInvoice), new { id = newInvoiceItem.Id },
-                Mapper.Map<InvoiceItemDto>(newInvoiceItem));
+            //return CreatedAtRoute(nameof(GetSingleInvoice), new { id = newInvoiceItem.Id },
+            //    Mapper.Map<InvoiceDto>(newInvoiceItem));
         }
 
+        [ProducesResponseType(typeof(InvoiceDto), 201)]
         [HttpPatch("{id:int}", Name = nameof(PayInvoice))]
-        public IActionResult PayInvoice(int id, [FromBody] JsonPatchDocument<InvoiceUpdateDto> patchDoc)
+        public IActionResult PayInvoice(int id)
         {
-            if (patchDoc == null)
-            {
-                return BadRequest();
-            }
+            Invoice updated = invoiceRepository.ChangeStatus(id, Status.Paid);
 
-            InvoiceItem existingEntity = _InvoiceRepository.GetSingle(id);
-
-            if (existingEntity == null)
-            {
-                return NotFound();
-            }
-
-            InvoiceUpdateDto InvoiceUpdateDto = Mapper.Map<InvoiceUpdateDto>(existingEntity);
-            patchDoc.ApplyTo(InvoiceUpdateDto, ModelState);
-
-            TryValidateModel(InvoiceUpdateDto);
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Mapper.Map(InvoiceUpdateDto, existingEntity);
-            InvoiceItem updated = _InvoiceRepository.Update(id, existingEntity);
-
-            if (!_InvoiceRepository.Save())
-            {
-                throw new Exception("Updating a Invoiceitem failed on save.");
-            }
-
-            return Ok(Mapper.Map<InvoiceItemDto>(updated));
+            return Ok(Mapper.Map<InvoiceDto>(updated));
         }
 
         [HttpDelete]
         [Route("{id:int}", Name = nameof(RemoveInvoice))]
         public IActionResult RemoveInvoice(int id)
         {
-            InvoiceItem InvoiceItem = _InvoiceRepository.GetSingle(id);
-
-            if (InvoiceItem == null)
-            {
-                return NotFound();
-            }
-
-            _InvoiceRepository.Delete(id);
-
-            if (!_InvoiceRepository.Save())
-            {
-                throw new Exception("Deleting a Invoiceitem failed on save.");
-            }
+            invoiceRepository.Delete(id);
 
             return NoContent();
         }
 
         [HttpPut]
+        [ValidateModelState]
         [Route("{id:int}", Name = nameof(UpdateInvoice))]
         public IActionResult UpdateInvoice(int id, [FromBody]InvoiceUpdateDto InvoiceUpdateDto)
         {
-            if (InvoiceUpdateDto == null)
-            {
-                return BadRequest();
-            }
-
-            var existingInvoiceItem = _InvoiceRepository.GetSingle(id);
-
-            if (existingInvoiceItem == null)
-            {
-                return NotFound();
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            Mapper.Map(InvoiceUpdateDto, existingInvoiceItem);
-
-            _InvoiceRepository.Update(id, existingInvoiceItem);
-
-            if (!_InvoiceRepository.Save())
-            {
-                throw new Exception("Updating a Invoiceitem failed on save.");
-            }
-
-            return Ok(Mapper.Map<InvoiceItemDto>(existingInvoiceItem));
-        }
-               
-
-        private List<LinkDto> CreateLinksForCollection(QueryParameters queryParameters, int totalCount)
-        {
-            var links = new List<LinkDto>();
-
-            // self 
-            links.Add(
-             new LinkDto(_urlHelper.Link(nameof(GetAllInvoices), new
-             {
-                 pagecount = queryParameters.PageCount,
-                 page = queryParameters.Page,
-                 orderby = queryParameters.OrderBy
-             }), "self", "GET"));
-
-            links.Add(new LinkDto(_urlHelper.Link(nameof(GetAllInvoices), new
-            {
-                pagecount = queryParameters.PageCount,
-                page = 1,
-                orderby = queryParameters.OrderBy
-            }), "first", "GET"));
-
-            links.Add(new LinkDto(_urlHelper.Link(nameof(GetAllInvoices), new
-            {
-                pagecount = queryParameters.PageCount,
-                page = queryParameters.GetTotalPages(totalCount),
-                orderby = queryParameters.OrderBy
-            }), "last", "GET"));
-
-            if (queryParameters.HasNext(totalCount))
-            {
-                links.Add(new LinkDto(_urlHelper.Link(nameof(GetAllInvoices), new
-                {
-                    pagecount = queryParameters.PageCount,
-                    page = queryParameters.Page + 1,
-                    orderby = queryParameters.OrderBy
-                }), "next", "GET"));
-            }
-
-            if (queryParameters.HasPrevious())
-            {
-                links.Add(new LinkDto(_urlHelper.Link(nameof(GetAllInvoices), new
-                {
-                    pagecount = queryParameters.PageCount,
-                    page = queryParameters.Page - 1,
-                    orderby = queryParameters.OrderBy
-                }), "previous", "GET"));
-            }
-
-            return links;
-        }
-
-        private dynamic ExpandSingleInvoiceItem(InvoiceItem InvoiceItem)
-        {
-            var links = GetLinks(InvoiceItem.Id);
-            InvoiceItemDto item = Mapper.Map<InvoiceItemDto>(InvoiceItem);
-
-            var resourceToReturn = item.ToDynamic() as IDictionary<string, object>;
-            resourceToReturn.Add("links", links);
-
-            return resourceToReturn;
-        }
-
-        private IEnumerable<LinkDto> GetLinks(int id)
-        {
-            var links = new List<LinkDto>();
-
-            links.Add(
-              new LinkDto(_urlHelper.Link(nameof(GetSingleInvoice), new { id = id }),
-              "self",
-              "GET"));
-
-            links.Add(
-              new LinkDto(_urlHelper.Link(nameof(RemoveInvoice), new { id = id }),
-              "delete_Invoice",
-              "DELETE"));
-
-            links.Add(
-              new LinkDto(_urlHelper.Link(nameof(AddInvoice), null),
-              "create_Invoice",
-              "POST"));
-
-            links.Add(
-               new LinkDto(_urlHelper.Link(nameof(UpdateInvoice), new { id = id }),
-               "update_Invoice",
-               "PUT"));
-
-            return links;
+            return Ok(Mapper.Map<InvoiceDto>(invoiceRepository.Update(id, Mapper.Map<Invoice>(InvoiceUpdateDto))));
         }
     }
-       
 }

@@ -22,6 +22,8 @@ namespace WebMvcNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            RestSharp.IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("WebApiEndpoint").Value);
+            services.AddSingleton(restClient);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

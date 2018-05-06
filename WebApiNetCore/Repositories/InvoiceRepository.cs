@@ -1,52 +1,59 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.Linq;
-using WebApiNetCore.Entities;
-using WebApiNetCore.Models;
 using System.Linq.Dynamic.Core;
+using WebApiNetCore.Entities;
 using WebApiNetCore.Helpers;
+using WebApiNetCore.Models;
 
 namespace WebApiNetCore.Repositories
 {
-    public class InvoiceRepository : IInvoiceRepository
+    public class InvoiceRepository : Repository, IInvoiceRepository
     {
-        private readonly ConcurrentDictionary<int, InvoiceItem> _storage = new ConcurrentDictionary<int, InvoiceItem>();
+        private readonly IInvoiceContext invoiceContext;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="InvoiceRepository"/> class.
+        /// </summary>
+        /// <param name="context">The context.</param>
+        public InvoiceRepository(IInvoiceContext context) : base(context)
+        {
+        }
 
         public Invoice GetSingle(int id)
         {
-            InvoiceItem InvoiceItem;
-            return _storage.TryGetValue(id, out InvoiceItem) ? InvoiceItem : null;
+            var invoice = base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted);
+            if (invoice == null)
+            {
+                return null;
+            }
+            return invoice;
         }
 
-        public void Add(InvoiceItem item)
+        public void Add(Invoice item)
         {
-            item.Id = !_storage.Values.Any() ? 1 : _storage.Values.Max(x => x.Id) + 1;
-
-            if (!_storage.TryAdd(item.Id, item))
-            {
-                throw new Exception("Item could not be added");
-            }
+            base.Add(item);
+           
+            Save();
         }
 
         public void Delete(int id)
         {
-            InvoiceItem InvoiceItem;
-            if (!_storage.TryRemove(id, out InvoiceItem))
-            {
-                throw new Exception("Item could not be removed");
-            }
+                    
+            SetDeleted(GetSingle(id), true);
+            Save();
         }
 
-        public InvoiceItem Update(int id, InvoiceItem item)
+        public Invoice Update(int id, Invoice item)
         {
-            _storage.TryUpdate(id, item, GetSingle(id));
-            return item;
+            base.Update(item);
+            SaveChanges();
+            return GetSingle(id);
         }
 
-        public IQueryable<InvoiceItem> GetAll(QueryParameters queryParameters)
+        public IQueryable<Invoice> GetAll(QueryParameters queryParameters)
         {
-            IQueryable<InvoiceItem> _allItems = _storage.Values.AsQueryable().OrderBy(queryParameters.OrderBy,
+            IQueryable<Invoice> _allItems = base.GetAllInner<Invoice>().OrderBy(queryParameters.OrderBy,
                queryParameters.IsDescending());
 
             if (queryParameters.HasQuery())
@@ -56,23 +63,31 @@ namespace WebApiNetCore.Repositories
                     || x.Name.IndexOf(queryParameters.Query, StringComparison.InvariantCultureIgnoreCase) >= 0);
             }
 
-            return _allItems
+            return _allItems.Where(x=>!x.IsDeleted)
                 .Skip(queryParameters.PageCount * (queryParameters.Page - 1))
                 .Take(queryParameters.PageCount);
         }
                
 
-        public int Count()
-        {
-            return _storage.Count;
-        }
-
         public bool Save()
         {
             // To keep interface consistent with Controllers, Tests & EF Interfaces
+            base.SaveChanges();
             return true;
         }
 
-        
+        public Invoice ChangeStatus(int id, Status status)
+        {
+            var invoice = invoiceContext.Invoice.FirstOrDefault(x => x.Id == id);
+            if (invoice == null)
+            {
+                return null;
+            }
+            invoice.Status = status;
+            UpdateSingleProperty(invoice, "Status");
+            
+            Save();
+            return invoice;
+        }
     }
 }

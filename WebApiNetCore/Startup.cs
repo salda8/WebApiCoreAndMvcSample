@@ -6,24 +6,25 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Serialization;
+using Swashbuckle.AspNetCore.Swagger;
 using WebApiNetCore.Dtos;
 using WebApiNetCore.Entities;
 using WebApiNetCore.Middleware;
 using WebApiNetCore.Repositories;
 using WebApiNetCore.Services;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace WebApiNetCore
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
+        public Startup(IConfiguration config)
         {
-            Configuration = configuration;
+            Configuration = config;
         }
 
         public IConfiguration Configuration { get; }
@@ -45,8 +46,14 @@ namespace WebApiNetCore
                     });
             });
 
+            var sercret = new AppSecrets() { Secret = Configuration["Secret"] };
+            services.AddSingleton(sercret);
+
             services.AddSingleton<ISeedDataService, SeedDataService>();
-            services.AddSingleton<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<IInvoiceContext, InvoiceContext>();
+            services.AddScoped<IInvoiceRepository, InvoiceRepository>();
+            services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
+
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(implementationFactory =>
@@ -69,7 +76,9 @@ namespace WebApiNetCore
             {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
             });
+            services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(Configuration.GetConnectionString("InvoiceDatabase")));
             services.AddApiVersioning(o => o.ReportApiVersions = true);
+
             services.AddSwaggerGen(
                 options =>
                 {
@@ -125,18 +134,20 @@ namespace WebApiNetCore
                     // build a swagger endpoint for each discovered API version
                     foreach (var description in provider.ApiVersionDescriptions)
                     {
-                        options.SwaggerEndpoint($"../swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
+                        options.SwaggerEndpoint($"/swagger/{description.GroupName}/swagger.json", description.GroupName.ToUpperInvariant());
                     }
                 });
 
-            var InvoiceRepository = app.ApplicationServices.GetRequiredService<IInvoiceRepository>();
             app.AddSeedData();
+
+            app.UseDefaultFiles();
 
             app.UseCors("AllowAllOrigins");
             AutoMapper.Mapper.Initialize(mapper =>
                       {
-                          mapper.CreateMap<InvoiceItem, InvoiceItemDto>().ReverseMap();
-                          mapper.CreateMap<InvoiceItem, InvoiceUpdateDto>().ReverseMap();
+                          mapper.CreateMap<Invoice, InvoiceDto>().ReverseMap();
+                          mapper.CreateMap<Invoice, InvoiceUpdateDto>().ReverseMap();
+                          mapper.CreateMap<Invoice, InvoiceCreateDto>().ReverseMap();
                           mapper.CreateMap<InvoiceItem, InvoiceCreateDto>().ReverseMap();
                       });
             app.UseMvc();

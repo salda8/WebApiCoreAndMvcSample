@@ -8,8 +8,8 @@ namespace WebApiNetCore.Middleware
     {
         public static async void AddSeedData(this IApplicationBuilder app)
         {
-            var seedDataService = app.ApplicationServices.GetRequiredService<ISeedDataService>();
-            seedDataService.EnsureSeedData();
+            //var seedDataService = app.ApplicationServices.GetRequiredService<ISeedDataService>();
+            //seedDataService.EnsureSeedData();
         }
     }
 }

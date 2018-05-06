@@ -11,6 +11,6 @@ namespace WebApiNetCore.Dtos
         public int Amount { get; set; }
         public string Type { get; set; }
         public DateTime DueDate { get; set; }
-        public DateTime Created { get; set; }
+       
     }
 }

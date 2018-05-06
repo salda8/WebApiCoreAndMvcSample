@@ -1,5 +1,4 @@
-﻿using WebApiNetCore.Entities;
-using WebApiNetCore.Repositories;
+﻿using WebApiNetCore.Repositories;
 using System;
 
 namespace WebApiNetCore.Services
@@ -15,10 +14,10 @@ namespace WebApiNetCore.Services
 
         public void EnsureSeedData()
         {
-            _repository.Add(new InvoiceItem() { Amount = 1000, Id = 1, Name = "Lasagne", Created = DateTime.Now });
-            _repository.Add(new InvoiceItem() { Amount = 1100, Id = 2, Name = "Hamburger", Created = DateTime.Now });
-            _repository.Add(new InvoiceItem() { Amount = 1200, Id = 3, Name = "Spaghetti", Created = DateTime.Now });
-            _repository.Add(new InvoiceItem() { Amount = 1300, Id = 4, Name = "Pizza", Created = DateTime.Now });
+            //_repository.Add(new InvoiceItem() { Amount = 1000, Id = 1, Name = "Lasagne", Created = DateTime.Now });
+            //_repository.Add(new InvoiceItem() { Amount = 1100, Id = 2, Name = "Hamburger", Created = DateTime.Now });
+            //_repository.Add(new InvoiceItem() { Amount = 1200, Id = 3, Name = "Spaghetti", Created = DateTime.Now });
+            //_repository.Add(new InvoiceItem() { Amount = 1300, Id = 4, Name = "Pizza", Created = DateTime.Now });
         }
     }
 }
