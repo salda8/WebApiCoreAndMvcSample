@@ -1,23 +1,22 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace WebApiNetCore.Entities
 {
     public class InvoiceItem : IEntity
     {
+        public int Amount { get; set; }
+
         [Key]
         public int Id { get; set; }
+
+        public Invoice Invoice { get; set; }
+        public int InvoiceId { get; set; }
+        public bool IsDeleted { get; set; }
         public string Name { get; set; }
-        public string Type { get; set; }
-        public int Amount { get; set; }
+
         [Timestamp]
         public byte[] Timestamp { get; set; }
-        public int InvoiceId { get; set; }
-        public Invoice Invoice { get; set; }
 
-        public bool IsDeleted { get; set; }
+        public string Type { get; set; }
     }
 }

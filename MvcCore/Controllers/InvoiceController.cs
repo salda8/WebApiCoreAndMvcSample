@@ -1,143 +1,93 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using RestSharp;
-using System.Collections.Generic;
-using WebApiNetCore.Dtos;
+﻿using DataStructures;
+using DataStructures.Dtos;
+using Microsoft.AspNetCore.Mvc;
+using MvcCore.Api;
 
-namespace WebMvcNetCore.Controllers
+namespace MvcCore.Controllers
 {
     public class InvoiceController : Controller
     {
-        private readonly IRestClient client;
+        private readonly IApiClient client;
 
-        public InvoiceController(IRestClient client)
+        public InvoiceController(IApiClient client)
         {
             this.client = client;
         }
 
-        public ActionResult Index()
+        [ActionName(nameof(DeleteInvoiceItem))]
+        public ActionResult DeleteInvoiceItem(int id)
         {
-            var restRequest = new RestRequest("api/invoice", Method.GET)
-                .AddQueryParameter("api-version", "1")
-                .AddHeader("x-api-key", "Secret007");
+            var response = client.DeleteDtoSync(id, ApiResources.InvoiceItem);
 
-            var response = client.Execute(restRequest);
-            var deserializedRespone = Newtonsoft.Json.JsonConvert.DeserializeObject<IEnumerable<InvoiceDto>>(response.Content);
-            return View(deserializedRespone);
+            return RedirectToAction(nameof(Index));
         }
 
-        [HttpPost]
-        public ActionResult CreateInvoiceItem(InvoiceItemDto invoiceItem)
-        {
-            var postRestRequest = new RestRequest($"api/invoiceItem", Method.POST)
-             .AddQueryParameter("api-version", "1")
-             .AddHeader("x-api-key", "Secret007")
-            .AddJsonBody(invoiceItem);
-
-            var response = client.Execute(postRestRequest);
-            return RedirectToAction("Index");
-        }
-
-        public ActionResult CreateInvoiceItem(int id)
-        {
-
-            return View(new InvoiceItemCreateDto() { InvoiceId = id });
-        }
         [HttpGet]
         public ActionResult CreateEditInvoice(int? id)
         {
             InvoiceDto invoice = new InvoiceDto();
             if (id != null)
             {
-                var restRequest = new RestRequest($"api/invoice/{id}", Method.GET)
-               .AddQueryParameter("api-version", "1")
-               .AddHeader("x-api-key", "Secret007");
-
-                var response = client.Execute(restRequest);
-                invoice = Newtonsoft.Json.JsonConvert.DeserializeObject<InvoiceDto>(response.Content);
+                invoice = client.GetByIdDtoSync<InvoiceDto>(ApiResources.Invoice, id.Value);
             }
 
             return View(invoice);
         }
 
+        /// <summary>
+        /// Creates the edit invoice.
+        /// </summary>
+        /// <param name="invoice">The invoice.</param>
+        /// <returns>ActionResult.</returns>
         [HttpPost]
         public ActionResult CreateEditInvoice(InvoiceDto invoice)
         {
             if (invoice.Id == 0)
             {
-                var postRestRequest = new RestRequest($"api/invoice", Method.POST)
-              .AddQueryParameter("api-version", "1")
-              .AddHeader("x-api-key", "Secret007")
-               .AddJsonBody(invoice);
-
-                var response = client.Execute(postRestRequest);
+                var response = client.PostDtoSync(invoice, ApiResources.Invoice);
             }
             else
             {
-                var restRequest = new RestRequest($"api/invoice/{invoice.Id}", Method.PUT).AddJsonBody(invoice)
-              .AddQueryParameter("api-version", "1")
-
-              .AddHeader("x-api-key", "Secret007");
-
-                var response = client.Execute(restRequest);
+                var response = client.PutDtoSync(invoice, invoice.Id, ApiResources.Invoice);
             }
 
-            return RedirectToAction("Index");
+            return RedirectToAction(nameof(Index));
         }
 
+        [HttpPost]
+        public ActionResult CreateInvoiceItem(InvoiceItemDto invoiceItem)
+        {
+            client.PostDtoSync(invoiceItem, ApiResources.InvoiceItem);
+            return RedirectToAction(nameof(Index));
+        }
+
+        public ActionResult CreateInvoiceItem(int id)
+        {
+            return View(new InvoiceItemCreateDto() { InvoiceId = id });
+        }
+
+        [ActionName(nameof(DeleteInvoice))]
         public ActionResult DeleteInvoice(int id)
         {
-            var restRequest = new RestRequest($"api/invoice/{id}", Method.DELETE)
-              .AddQueryParameter("api-version", "1")
-              .AddHeader("x-api-key", "Secret007");
-
-            var response = client.Execute(restRequest);
-            return RedirectToAction("Index");
-        }
-
-        [HttpPost, ActionName("DeleteInvoice")]
-        public ActionResult ConfirmDeleteInvoice(int id)
-        {
-            return RedirectToAction("Index");
+            var response = client.DeleteDtoSync(id, ApiResources.Invoice);
+            return RedirectToAction(nameof(Index));
         }
 
         public ActionResult DetailInvoice(int id)
         {
-            var restRequest = new RestRequest($"api/invoice/{id}", Method.GET)
-               .AddQueryParameter("api-version", "1")
-               .AddHeader("x-api-key", "Secret007");
+            var response = client.GetByIdDtoSync<InvoiceDto>(ApiResources.Invoice, id);
+            return View(response);
+        }
 
-            var response = client.Execute(restRequest);
-            var deserializedRespone = Newtonsoft.Json.JsonConvert.DeserializeObject<InvoiceDto>(response.Content);
-            return View(deserializedRespone);
+        public ActionResult Index()
+        {
+            return View(client.GetAllDtoSync<InvoiceDto>(ApiResources.Invoice));
         }
 
         public ActionResult PayInvoice(int id)
         {
-            var restRequest = new RestRequest($"api/invoice/{id}", Method.PATCH)
-            .AddQueryParameter("api-version", "1")
-
-            .AddHeader("x-api-key", "Secret007");
-
-            var response = client.Execute(restRequest);
-            return RedirectToAction("Index");
+            var response = client.PatchDtoSync(id, ApiResources.Invoice);
+            return RedirectToAction(nameof(Index));
         }
-
-        [HttpPost, ActionName("DeleteInvoiceItem")]
-        public ActionResult ConfirmDeleteInvoiceItem(int id)
-        {
-            var restRequest = new RestRequest($"api/invoiceItem/{id}", Method.DELETE)
-              .AddQueryParameter("api-version", "1")
-              .AddHeader("x-api-key", "Secret007");
-
-            var response = client.Execute(restRequest);
-            //Invoice model = InvoiceRepository.GetById(id);
-            //InvoiceRepository.Delete(model);
-            return RedirectToAction("Index");
         }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
-        }
-    }
 }

@@ -1,22 +1,18 @@
-using System;
-using System.Linq;
-
 namespace WebApiNetCore.Models
 {
     public class QueryParameters
     {
-        private const int maxPageCount = 50;
+        private const int MaxPageCount = 50;
+        private int pageCount = MaxPageCount;
+        public string OrderBy { get; set; } = "Name";
         public int Page { get; set; } = 1;
 
-        private int _pageCount = maxPageCount;
         public int PageCount
         {
-            get { return _pageCount; }
-            set { _pageCount = (value > maxPageCount) ? maxPageCount : value; }
+            get { return pageCount; }
+            set { pageCount = (value > MaxPageCount) ? MaxPageCount : value; }
         }
-        
-        public string Query { get; set; }
 
-        public string OrderBy { get; set; } = "Name";
+        public string Query { get; set; }
     }
 }

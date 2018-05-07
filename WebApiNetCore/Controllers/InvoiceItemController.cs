@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
-using Microsoft.AspNetCore.Http;
+﻿using AutoMapper;
+using DataStructures.Dtos;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using WebApiNetCore.Dtos;
-using WebApiNetCore.Entities;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using WebApiNetCore.Repositories;
 
 namespace WebApiNetCore.Controllers
@@ -16,7 +11,7 @@ namespace WebApiNetCore.Controllers
     [ApiVersion("1.0")]
     [Produces("application/json")]
     [Route("api/InvoiceItem")]
-    [SwaggerResponse(400,typeof(BadRequestResult), "Error when model state validation failes")]
+    [SwaggerResponse(400, typeof(BadRequestResult), "Error when model state validation failes")]
     public class InvoiceItemController : Controller
     {
         private readonly IInvoiceItemRepository repository;
@@ -25,13 +20,22 @@ namespace WebApiNetCore.Controllers
         {
             this.repository = repository;
         }
+
+        // DELETE: api/ApiWithActions/5
+        [SwaggerResponse(204)]
+        [HttpDelete("{id}")]
+        public IActionResult Delete(int id)
+        {
+            repository.Delete(id);
+            return NoContent();
+        }
+
         // GET: api/InvoiceIItems
         [SwaggerResponse(200, typeof(IEnumerable<InvoiceItemDto>))]
         [HttpGet]
         public IActionResult Get()
         {
             return Ok(Mapper.Map<IEnumerable<InvoiceItemDto>>(repository.GetAll()));
-          
         }
 
         // GET: api/InvoiceIItems/5
@@ -48,18 +52,8 @@ namespace WebApiNetCore.Controllers
         [HttpPost]
         public IActionResult Post([FromBody, Required]InvoiceItemCreateDto value)
         {
-            repository.Add(Mapper.Map<InvoiceItem>(value));
+            repository.Add(value);
             return Ok();
-        }
-
-
-        // DELETE: api/ApiWithActions/5
-        [SwaggerResponse(204)]
-        [HttpDelete("{id}")]
-        public IActionResult Delete(int id)
-        {
-            repository.Delete(id);
-            return NoContent();
         }
     }
 }

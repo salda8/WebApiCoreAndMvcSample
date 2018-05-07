@@ -11,5 +11,17 @@ namespace WebApiNetCore.Middleware
             var seedDataService = app.ApplicationServices.GetRequiredService<ISeedDataService>();
             seedDataService.EnsureSeedData();
         }
+
+        public static IApplicationBuilder ApplySecretKeyValidation(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<SecretKeyValidatorsMiddleware>();
+            return app;
+        }
+
+        public static IApplicationBuilder ErrorHandling(this IApplicationBuilder app)
+        {
+            app.UseMiddleware<ErrorHandlingMiddleware>();
+            return app;
+        }
     }
 }

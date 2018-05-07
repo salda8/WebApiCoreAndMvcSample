@@ -1,7 +1,10 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using DataStructures.Dtos;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -10,9 +13,11 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
-using WebApiNetCore.Dtos;
+using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using WebApiNetCore.Entities;
 using WebApiNetCore.Middleware;
 using WebApiNetCore.Repositories;
@@ -46,9 +51,9 @@ namespace WebApiNetCore
                     });
             });
 
-            var sercret = new AppSecrets() { Secret = Configuration["Secret"] };
-            services.AddSingleton(sercret);
+           
             services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(Configuration.GetConnectionString("InvoiceDatabase")));
+            services.AddSingleton<ISecretRepository, SecretRepository>();
             services.AddScoped<IInvoiceContext, InvoiceContext>();
             services.AddScoped<ISeedDataService, SeedDataService>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
@@ -81,6 +86,37 @@ namespace WebApiNetCore
             });
           
             services.AddApiVersioning(o => o.ReportApiVersions = true);
+
+
+            // ===== Add Identity ========
+            services.AddIdentity<IdentityUser, IdentityRole>()
+                .AddEntityFrameworkStores<InvoiceContext>()
+                .AddDefaultTokenProviders();
+
+            // ===== Add Jwt Authentication ========
+            JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear(); // => remove default claims
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+
+                })
+                .AddJwtBearer(cfg =>
+                {
+                    cfg.RequireHttpsMetadata = false;
+                    cfg.SaveToken = true;
+                    cfg.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidIssuer = Configuration["JwtIssuer"],
+                        ValidAudience = Configuration["JwtIssuer"],
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["JwtKey"])),
+                        ClockSkew = System.TimeSpan.Zero // remove delay of token when expire
+                    };
+                });
+
+
 
             services.AddSwaggerGen(
                 options =>
@@ -130,6 +166,7 @@ namespace WebApiNetCore
                     });
                 });
             }
+            
             app.UseSwagger();
             app.UseSwaggerUI(
                 options =>
@@ -141,8 +178,9 @@ namespace WebApiNetCore
                     }
                 });
 
-            //app.AddSeedData();
-
+            app.AddSeedData();
+            app.ApplySecretKeyValidation();
+            app.ErrorHandling();
             app.UseDefaultFiles();
 
             app.UseCors("AllowAllOrigins");
@@ -152,6 +190,7 @@ namespace WebApiNetCore
                           mapper.CreateMap<Invoice, InvoiceUpdateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
                           mapper.CreateMap<Invoice, InvoiceCreateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
                           mapper.CreateMap<InvoiceItem, InvoiceItemCreateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                          mapper.CreateMap<InvoiceItem, InvoiceItemDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
                       });
             app.UseMvc();
         }

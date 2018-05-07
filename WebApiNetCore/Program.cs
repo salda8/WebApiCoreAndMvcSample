@@ -9,10 +9,10 @@ namespace WebApiNetCore
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args).Run();
+            BuildWebHost2(args).Run();
         }
-
-        public static IWebHost BuildWebHost(string[] args) =>
+        //https://github.com/aspnet/EntityFrameworkCore/issues/9033
+        public static IWebHost BuildWebHost2(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
@@ -25,7 +25,7 @@ namespace WebApiNetCore
 
                     config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                             .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-                    config.AddUserSecrets<AppSecrets>();
+                   
                 })
             
                 .Build();

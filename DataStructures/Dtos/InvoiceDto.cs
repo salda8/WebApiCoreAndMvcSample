@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 
-
-namespace WebApiNetCore.Dtos
+namespace DataStructures.Dtos
 {
-    public class InvoiceDto
+    public class InvoiceDto : Dto
     {
         public int Id { get; set; }
         public string Name { get; set; }

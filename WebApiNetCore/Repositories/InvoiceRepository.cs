@@ -1,12 +1,11 @@
 using AutoMapper;
+using DataStructures.Dtos;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
-using WebApiNetCore.Dtos;
 using WebApiNetCore.Entities;
-using WebApiNetCore.Helpers;
 using WebApiNetCore.Models;
 
 namespace WebApiNetCore.Repositories
@@ -21,6 +20,51 @@ namespace WebApiNetCore.Repositories
         {
         }
 
+        public void Add(InvoiceCreateDto item)
+        {
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            base.Add(Mapper.Map<Invoice>(item));
+            SaveChanges();
+        }
+
+        public InvoiceDto ChangeStatus(int id, Status status)
+        {
+            var invoice = base.SingleOrDefault<Invoice>(x => x.Id == id);
+            if (invoice == null)
+            {
+                return null;
+            }
+            invoice.Status = status;
+            UpdateSingleProperty(invoice, "Status");
+
+            Save();
+            return Mapper.Map<InvoiceDto>(invoice);
+        }
+
+        public void Delete(int id)
+        {
+            SetDeleted(base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted), true);
+            Save();
+        }
+
+        public IEnumerable<InvoiceDto> GetAll(QueryParameters queryParameters)
+        {
+            var toReturn = Context.Invoice.Where(x => !x.IsDeleted)
+                .Select(x =>
+                  new
+                  {
+                      invoice = x,
+                      items = x.InvoiceItems.Where(y => !y.IsDeleted)
+                  }).ToList()
+                .Select(y =>
+              {
+                  var x = y.invoice;
+                  x.InvoiceItems = y.items.ToList();
+                  return x;
+              });
+            return Mapper.Map<IEnumerable<InvoiceDto>>(toReturn);
+        }
+
         public InvoiceDto GetSingle(int id)
         {
             var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
@@ -31,44 +75,6 @@ namespace WebApiNetCore.Repositories
             return Mapper.Map<InvoiceDto>(invoice);
         }
 
-        public void Add(InvoiceCreateDto item)
-        {
-            base.Add(Mapper.Map<Invoice>(item));
-            SaveChanges();
-        }
-
-        public void Delete(int id)
-        {
-            SetDeleted(base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted), true);
-            Save();
-        }
-
-        public InvoiceDto Update(int id, InvoiceUpdateDto item)
-        {
-            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
-            invoice = Mapper.Map(item, invoice);
-            base.Update(invoice);
-            SaveChanges();
-            return GetSingle(id);
-        }
-
-        public IEnumerable<InvoiceDto> GetAll(QueryParameters queryParameters)
-        {
-            IQueryable<Invoice> _allItems = base.GetAllInner<Invoice>().Include(x => x.InvoiceItems).OrderBy(queryParameters.OrderBy,
-               queryParameters.IsDescending());
-
-            if (queryParameters.HasQuery())
-            {
-                _allItems = _allItems
-                    .Where(x => x.Amount.ToString().Contains(queryParameters.Query.ToLowerInvariant())
-                    || x.Name.IndexOf(queryParameters.Query, StringComparison.InvariantCultureIgnoreCase) >= 0);
-            }
-
-            return Mapper.Map<IEnumerable<InvoiceDto>>(_allItems.Where(x => !x.IsDeleted)
-                .Skip(queryParameters.PageCount * (queryParameters.Page - 1))
-                .Take(queryParameters.PageCount).ToList());
-        }
-
         public bool Save()
         {
             // To keep interface consistent with Controllers, Tests & EF Interfaces
@@ -76,18 +82,14 @@ namespace WebApiNetCore.Repositories
             return true;
         }
 
-        public InvoiceDto ChangeStatus(int id, Status status)
+        public InvoiceDto Update(int id, InvoiceUpdateDto item)
         {
-            var invoice = base.SingleOrDefault<Invoice>(x=>x.Id==id);
-            if (invoice == null)
-            {
-                return null;
-            }
-            invoice.Status = status;
-            UpdateSingleProperty(invoice, "Status");
-
-            Save();
-            return Mapper.Map<InvoiceDto>(invoice);
+            if (item == null) throw new ArgumentNullException(nameof(item));
+            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
+            invoice = Mapper.Map(item, invoice);
+            base.Update(invoice);
+            SaveChanges();
+            return GetSingle(id);
         }
     }
 }

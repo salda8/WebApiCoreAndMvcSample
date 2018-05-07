@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
 using Microsoft.AspNetCore;
+using MvcCore.Api;
 using WebMarkupMin.AspNetCore2;
 using RestSharp;
 
@@ -28,6 +29,7 @@ namespace MvcCore
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+            
                 .UseStartup<Startup>()
                 .Build();
 
@@ -38,9 +40,12 @@ namespace MvcCore
         {
             services.AddResponseCaching();
             services.AddMvc();
-            IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("ApiEndpoint").Value);
 
-            services.AddSingleton(restClient);
+            var apiConfiguration = new ApiConfiguration(Configuration["ApiSecret"], Configuration.GetSection("ApiVersion").Value,Configuration.GetSection("Endpoint").Value);
+            //IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("ApiEndpoint").Value);
+            services.AddSingleton(apiConfiguration);
+            //services.AddSingleton(restClient);
+            services.AddSingleton<IApiClient, ApiClient>();
 
             services.AddWebMarkupMin(options =>
             {
@@ -81,7 +86,7 @@ namespace MvcCore
                     };
                 }
             });
-
+          
             app.UseWebMarkupMin();
 
             app.UseMvc(routes =>

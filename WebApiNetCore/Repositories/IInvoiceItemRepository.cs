@@ -1,13 +1,14 @@
 ﻿using System.Collections.Generic;
+using DataStructures.Dtos;
 using WebApiNetCore.Entities;
 
 namespace WebApiNetCore.Repositories
 {
     public interface IInvoiceItemRepository
     {
-        void Add(InvoiceItem invoiceItem);
+        void Add(InvoiceItemCreateDto invoiceItem);
         void Delete(int id);
-        IEnumerable<InvoiceItem> GetAll();
-        InvoiceItem GetSingle(int id);
+        IEnumerable<InvoiceItemDto> GetAll();
+        InvoiceItemDto GetSingle(int id);
     }
 }

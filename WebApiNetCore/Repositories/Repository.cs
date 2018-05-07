@@ -1,21 +1,25 @@
-﻿using Microsoft.EntityFrameworkCore;
-using NLog;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
+using NLog;
+using WebApiNetCore.Entities;
 
-namespace WebApiNetCore.Entities
+namespace WebApiNetCore.Repositories
 {
     public abstract class Repository //: IRepository
     {
+        /// <summary>
+        /// The logger
+        /// </summary>
         protected static Logger Logger = LogManager.GetCurrentClassLogger();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Repository"/> class.
         /// </summary>
         /// <param name="context">The context.</param>
-        public Repository(IInvoiceContext context)
+        protected Repository(IInvoiceContext context)
         {
             Context = context;
         }
@@ -47,6 +51,16 @@ namespace WebApiNetCore.Entities
         public IEnumerable<T> GetAll<T>() where T : class, IEntity
         {
             return GetAllInner<T>();
+        }
+        /// <summary>
+        ///     Gets all entities. If maxRows is supplied, the query will throw an exception if more than that number of rows were
+        ///     to be returned.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        public IEnumerable<T> GetAllNotDeleted<T>() where T : class, IEntity
+        {
+            return GetAllInner<T>().Where(x=>x.IsDeleted==false);
         }
 
         /// <summary>

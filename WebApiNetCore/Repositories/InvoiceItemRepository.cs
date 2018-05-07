@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using AutoMapper;
+using DataStructures.Dtos;
 using WebApiNetCore.Entities;
 
 namespace WebApiNetCore.Repositories
@@ -9,26 +12,49 @@ namespace WebApiNetCore.Repositories
         {
         }
 
-        public InvoiceItem GetSingle(int id)
+        public InvoiceItemDto GetSingle(int id)
         {
-            return base.SingleOrDefault<InvoiceItem>(x => x.Id == id);
+            return Mapper.Map<InvoiceItemDto>(SingleOrDefault<InvoiceItem>(x => x.Id == id && x.IsDeleted==false));
         }
 
-        public IEnumerable<InvoiceItem> GetAll()
+        public IEnumerable<InvoiceItemDto> GetAll()
         {
-            return base.GetAll<InvoiceItem>();
+            return Mapper.Map<IEnumerable<InvoiceItemDto>>(base.GetAllNotDeleted<InvoiceItem>());
         }
 
         public void Delete(int id)
         {
-            SetDeleted(base.SingleOrDefault<IEntity>(x => x.Id == id), true);
+            var item = base.SingleOrDefault<InvoiceItem>(x => x.Id == id && !x.IsDeleted) ?? throw new ArgumentNullException($"Can't find InvoiceItem with ID {id}");
+            UpdateInvoiceAmount(item, true);
+            SetDeleted(item, true);
             SaveChanges();
         }
 
-        public void Add(InvoiceItem invoiceItem)
+        public void Add(InvoiceItemCreateDto invoiceItemDto)
         {
+            if (invoiceItemDto == null) throw new ArgumentNullException(nameof(invoiceItemDto));
+            var invoiceItem = Mapper.Map<InvoiceItem>(invoiceItemDto);
             base.Add(invoiceItem);
-            SaveChanges();
+            UpdateInvoiceAmount(invoiceItem);
+        }
+
+        private void UpdateInvoiceAmount(InvoiceItem invoiceItem, bool substractAmount =false)
+        {
+            var invoice = SingleOrDefault<Invoice>(x => x.Id == invoiceItem.InvoiceId);
+            if (invoice != null)
+            {
+                if (substractAmount)    
+                {
+                    invoice.Amount -= invoiceItem.Amount;
+                }
+                else
+                {
+                    invoice.Amount += invoiceItem.Amount;
+                }
+
+                UpdateSingleProperty(invoice, "Amount");
+                SaveChanges();
+            }
         }
     }
 }

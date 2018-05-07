@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace WebApiNetCore.Entities
+﻿namespace WebApiNetCore.Entities
 {
     public interface IEntity
     {

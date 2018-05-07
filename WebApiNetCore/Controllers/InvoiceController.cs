@@ -1,10 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using DataStructures.Dtos;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using WebApiNetCore.Dtos;
-using WebApiNetCore.Entities;
 using WebApiNetCore.Models;
 using WebApiNetCore.Repositories;
 
@@ -19,10 +18,28 @@ namespace WebApiNetCore.Controllers
         private readonly IInvoiceRepository invoiceRepository;
         private readonly IUrlHelper urlHelper;
 
-        public InvoiceController(IUrlHelper urlHelper, IInvoiceRepository InvoiceRepository)
+        public InvoiceController(IUrlHelper urlHelper, IInvoiceRepository invoiceRepository)
         {
-            this.invoiceRepository = InvoiceRepository;
+            this.invoiceRepository = invoiceRepository;
             this.urlHelper = urlHelper;
+        }
+
+        [ValidateModelState]
+        [HttpPost(Name = nameof(AddInvoice))]
+        public IActionResult AddInvoice([FromBody, Required] InvoiceCreateDto invoiceCreateDto)
+        {
+            invoiceRepository.Add(invoiceCreateDto);
+            return Ok();
+
+            //if (!_InvoiceRepository.Save())
+            //{
+            //    throw new Exception("Creating a Invoiceitem failed on save.");
+            //}
+
+            //Invoice newInvoiceItem = _InvoiceRepository.GetSingle(toAdd.Id);
+
+            //return CreatedAtRoute(nameof(GetSingleInvoice), new { id = newInvoiceItem.Id },
+            //    Mapper.Map<InvoiceDto>(newInvoiceItem));
         }
 
         [SwaggerResponse(201, typeof(IEnumerable<InvoiceDto>))]
@@ -37,32 +54,14 @@ namespace WebApiNetCore.Controllers
         [Route("{id:int}", Name = nameof(GetSingleInvoice))]
         public IActionResult GetSingleInvoice(int id)
         {
-            InvoiceDto Invoice = invoiceRepository.GetSingle(id);
+            InvoiceDto invoice = invoiceRepository.GetSingle(id);
 
-            if (Invoice == null)
+            if (invoice == null)
             {
                 return NotFound();
             }
 
-            return Ok(Invoice);
-        }
-
-        [ValidateModelState]
-        [HttpPost(Name = nameof(AddInvoice))]
-        public IActionResult AddInvoice([FromBody, Required] InvoiceCreateDto InvoiceCreateDto)
-        {
-            invoiceRepository.Add(InvoiceCreateDto);
-            return Ok();
-
-            //if (!_InvoiceRepository.Save())
-            //{
-            //    throw new Exception("Creating a Invoiceitem failed on save.");
-            //}
-
-            //Invoice newInvoiceItem = _InvoiceRepository.GetSingle(toAdd.Id);
-
-            //return CreatedAtRoute(nameof(GetSingleInvoice), new { id = newInvoiceItem.Id },
-            //    Mapper.Map<InvoiceDto>(newInvoiceItem));
+            return Ok(invoice);
         }
 
         [SwaggerResponse(201, typeof(InvoiceDto))]
@@ -87,9 +86,9 @@ namespace WebApiNetCore.Controllers
         [ValidateModelState]
         [SwaggerResponse(201, typeof(InvoiceDto))]
         [Route("{id:int}", Name = nameof(UpdateInvoice))]
-        public IActionResult UpdateInvoice(int id, [FromBody]InvoiceUpdateDto InvoiceUpdateDto)
+        public IActionResult UpdateInvoice(int id, [FromBody]InvoiceUpdateDto invoiceUpdateDto)
         {
-            return Ok(invoiceRepository.Update(id, InvoiceUpdateDto));
+            return Ok(invoiceRepository.Update(id, invoiceUpdateDto));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿@model WebApiNetCore.Dtos.InvoiceDto;
+﻿@using DataStructures.Dtos
+@model DataStructures.Dtos.InvoiceDto;
 
 @{
     ViewBag.Title = "Detail Invoice";
@@ -66,7 +67,7 @@
                        
                         <td>
                            
-                            @Html.ActionLink("Delete", "DeleteInvoice", new { id = item.Id }, new { @class = "btn btn-warning" })
+                            @Html.ActionLink("Delete", "DeleteInvoiceItem", new { id = item.Id }, new { @class = "btn btn-warning" })
                            
 
                         </td>

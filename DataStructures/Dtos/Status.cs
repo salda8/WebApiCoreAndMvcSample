@@ -1,4 +1,4 @@
-﻿namespace WebApiNetCore.Dtos
+﻿namespace DataStructures.Dtos
 {
     public enum Status
     {

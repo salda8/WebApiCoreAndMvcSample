@@ -1,9 +1,8 @@
-﻿using System;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebApiNetCore.Dtos
+namespace DataStructures.Dtos
 {
-    public class InvoiceItemDto
+    public class InvoiceItemDto : Dto
     {
         [Key]
         public int Id { get; set; }

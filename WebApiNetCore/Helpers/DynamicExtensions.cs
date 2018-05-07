@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Dynamic;
 
-namespace WebApiNetCore.Models
+namespace WebApiNetCore.Helpers
 {
     public static class DynamicExtensions
     {
