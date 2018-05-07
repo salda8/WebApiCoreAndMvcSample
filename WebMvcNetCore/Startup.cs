@@ -1,20 +1,15 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Linq;
 
 namespace WebMvcNetCore
 {
     public class Startup
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
+        public Startup(IConfiguration configuration) => Configuration = configuration;
 
         public IConfiguration Configuration { get; }
 
@@ -22,7 +17,8 @@ namespace WebMvcNetCore
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
-            RestSharp.IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("WebApiEndpoint").Value);
+            RestSharp.IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("ApiEndpoint").Value);
+                
             services.AddSingleton(restClient);
         }
 
@@ -40,7 +36,12 @@ namespace WebMvcNetCore
 
             app.UseStaticFiles();
 
-            app.UseMvc();
+            app.UseMvc(routes=> {
+                routes.MapRoute(
+                    name: "default",
+                    template: "{controller=Invoice}/{action=Index}/{id?}");
+
+            });
         }
     }
 }

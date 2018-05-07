@@ -1,23 +1,30 @@
 ﻿using WebApiNetCore.Repositories;
 using System;
+using WebApiNetCore.Entities;
+using System.Linq;
 
 namespace WebApiNetCore.Services
 {
     public class SeedDataService : ISeedDataService
     {
-        IInvoiceRepository _repository;
+        IInvoiceContext context;
+       
 
-        public SeedDataService(IInvoiceRepository repository)
+        public SeedDataService(IInvoiceContext context)
         {
-            _repository = repository;
+            this.context = context;
+            
         }
 
         public void EnsureSeedData()
         {
-            //_repository.Add(new InvoiceItem() { Amount = 1000, Id = 1, Name = "Lasagne", Created = DateTime.Now });
-            //_repository.Add(new InvoiceItem() { Amount = 1100, Id = 2, Name = "Hamburger", Created = DateTime.Now });
-            //_repository.Add(new InvoiceItem() { Amount = 1200, Id = 3, Name = "Spaghetti", Created = DateTime.Now });
-            //_repository.Add(new InvoiceItem() { Amount = 1300, Id = 4, Name = "Pizza", Created = DateTime.Now });
+            if (!context.Invoice.Any())
+            {
+                context.Invoice.Add(new Invoice { Name = "PC", Type = "BestType", DueDate = DateTime.Now.AddDays(30) });
+                context.InvoiceItems.Add(new InvoiceItem() { Amount = 1100, Name = "Procesor", InvoiceId = 1 });
+                context.InvoiceItems.Add(new InvoiceItem() { Amount = 1100, Name = "GPU", InvoiceId = 1 });
+            }
+           
         }
     }
 }

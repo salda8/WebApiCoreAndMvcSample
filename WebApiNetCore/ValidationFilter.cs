@@ -2,14 +2,8 @@
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Reflection;
-using System.Threading;
-using System.Threading.Tasks;
-
 
 namespace WebApiNetCore
 {
@@ -51,34 +45,6 @@ namespace WebApiNetCore
                     }
                 }
             }
-        }
-    }
-
-    public class AuthenticationFilter : ActionFilterAttribute,IAuthorizationFilter
-    {
-        private string secrets = "Secret007";
-
-        
-        public void OnAuthorization(AuthorizationFilterContext context) {
-            context.HttpContext.Request.Headers.TryGetValue("X-API-KEY", out Microsoft.Extensions.Primitives.StringValues value);
-            if (!(value.Count>0 && value.SingleOrDefault().Equals(secrets)))
-            {
-               context.Result = new UnauthorizedResult();
-            }
-
-
-        }
-    }
-
-    public class AuthenticationFailureResult : IActionResult
-    {
-        public AuthenticationFailureResult()
-        {
-        }
-
-        public Task ExecuteResultAsync(ActionContext context)
-        {
-            return Task.FromResult(new UnauthorizedResult());
         }
     }
 }

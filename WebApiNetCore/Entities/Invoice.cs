@@ -1,20 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using WebApiNetCore.Dtos;
 
-namespace WebMvcNetCore.Models
+namespace WebApiNetCore.Entities
 {
-    public class InvoiceItem
-    {
-        public int Id { get; set; }
-        public string Name { get; set; }
-        public string Type { get; set; }
-        public int Amount { get; set; }
-        public int InvoiceId { get; set; }
-
-    }
-
-    public class Invoice
+    public class Invoice : IEntity
     {
         [Key]
         public int Id { get; set; }
@@ -23,15 +14,11 @@ namespace WebMvcNetCore.Models
         public Status Status { get; set; }
         public int Amount { get; set; }
         public ICollection<InvoiceItem> InvoiceItems { get; set; }
+        [Timestamp]
+        public byte[] Timestamp { get; set; }
         [Required]
         public DateTime Created { get; set; }
         public DateTime DueDate { get; set; }
-
-    }
-
-    public enum Status
-    {
-        Unpaid,
-        Paid
+        public bool IsDeleted { get; set; }
     }
 }

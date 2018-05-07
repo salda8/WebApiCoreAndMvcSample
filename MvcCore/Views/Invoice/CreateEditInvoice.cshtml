@@ -1,0 +1,56 @@
+﻿@model WebApiNetCore.Dtos.InvoiceDto;
+
+@{
+    ViewBag.Title = "Create Edit Invoice";
+}
+@section scripts{
+    <script type="text/javascript">
+      $(document).ready(function () {
+        $(".datepicker").datepicker({ format: 'dd.mm.yyyy', autoclose: true, todayBtn: 'linked' })
+    });
+    </script>
+}
+<div class="book-example panel panel-primary">
+    <div class="panel-heading panel-head">Add / Edit Invoice</div>
+    <div class="panel-body">
+        @using (Html.BeginForm("CreateEditInvoice", "Invoice", FormMethod.Post))
+        {       
+            <div class="form-horizontal">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Type, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Type, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.DueDate, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.DueDate, new { @class = "form-control datepicker" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Amount, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Amount, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-8"></div>
+                    <div class="col-lg-3">
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        <button class="btn btn-success" id="btnSubmit" type="submit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>       
+        }
+    </div>
+</div>
+

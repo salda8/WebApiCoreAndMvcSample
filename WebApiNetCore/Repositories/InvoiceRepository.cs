@@ -1,7 +1,10 @@
+using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
+using WebApiNetCore.Dtos;
 using WebApiNetCore.Entities;
 using WebApiNetCore.Helpers;
 using WebApiNetCore.Models;
@@ -10,8 +13,6 @@ namespace WebApiNetCore.Repositories
 {
     public class InvoiceRepository : Repository, IInvoiceRepository
     {
-        private readonly IInvoiceContext invoiceContext;
-
         /// <summary>
         /// Initializes a new instance of the <see cref="InvoiceRepository"/> class.
         /// </summary>
@@ -20,40 +21,40 @@ namespace WebApiNetCore.Repositories
         {
         }
 
-        public Invoice GetSingle(int id)
+        public InvoiceDto GetSingle(int id)
         {
-            var invoice = base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted);
+            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
             if (invoice == null)
             {
                 return null;
             }
-            return invoice;
+            return Mapper.Map<InvoiceDto>(invoice);
         }
 
-        public void Add(Invoice item)
+        public void Add(InvoiceCreateDto item)
         {
-            base.Add(item);
-           
-            Save();
+            base.Add(Mapper.Map<Invoice>(item));
+            SaveChanges();
         }
 
         public void Delete(int id)
         {
-                    
-            SetDeleted(GetSingle(id), true);
+            SetDeleted(base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted), true);
             Save();
         }
 
-        public Invoice Update(int id, Invoice item)
+        public InvoiceDto Update(int id, InvoiceUpdateDto item)
         {
-            base.Update(item);
+            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
+            invoice = Mapper.Map(item, invoice);
+            base.Update(invoice);
             SaveChanges();
             return GetSingle(id);
         }
 
-        public IQueryable<Invoice> GetAll(QueryParameters queryParameters)
+        public IEnumerable<InvoiceDto> GetAll(QueryParameters queryParameters)
         {
-            IQueryable<Invoice> _allItems = base.GetAllInner<Invoice>().OrderBy(queryParameters.OrderBy,
+            IQueryable<Invoice> _allItems = base.GetAllInner<Invoice>().Include(x => x.InvoiceItems).OrderBy(queryParameters.OrderBy,
                queryParameters.IsDescending());
 
             if (queryParameters.HasQuery())
@@ -63,11 +64,10 @@ namespace WebApiNetCore.Repositories
                     || x.Name.IndexOf(queryParameters.Query, StringComparison.InvariantCultureIgnoreCase) >= 0);
             }
 
-            return _allItems.Where(x=>!x.IsDeleted)
+            return Mapper.Map<IEnumerable<InvoiceDto>>(_allItems.Where(x => !x.IsDeleted)
                 .Skip(queryParameters.PageCount * (queryParameters.Page - 1))
-                .Take(queryParameters.PageCount);
+                .Take(queryParameters.PageCount).ToList());
         }
-               
 
         public bool Save()
         {
@@ -76,18 +76,18 @@ namespace WebApiNetCore.Repositories
             return true;
         }
 
-        public Invoice ChangeStatus(int id, Status status)
+        public InvoiceDto ChangeStatus(int id, Status status)
         {
-            var invoice = invoiceContext.Invoice.FirstOrDefault(x => x.Id == id);
+            var invoice = base.SingleOrDefault<Invoice>(x=>x.Id==id);
             if (invoice == null)
             {
                 return null;
             }
             invoice.Status = status;
             UpdateSingleProperty(invoice, "Status");
-            
+
             Save();
-            return invoice;
+            return Mapper.Map<InvoiceDto>(invoice);
         }
     }
 }

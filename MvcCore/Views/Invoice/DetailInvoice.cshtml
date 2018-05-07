@@ -1,0 +1,91 @@
+﻿@model WebApiNetCore.Dtos.InvoiceDto;
+
+@{
+    ViewBag.Title = "Detail Invoice";
+}
+
+<div class="book-example panel panel-primary">
+    <div class="panel-heading panel-head">Book Detail</div>
+    <div class="panel-body">
+        <div class="form-horizontal">
+            <div class="form-group">
+                @Html.LabelFor(model => model.Name, new { @class = "col-lg-1 control-label" })
+                <div class="col-lg-9">
+                    @Html.DisplayFor(model => model.Name, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Type, new { @class = "col-lg-1 control-label" })
+                <div class="col-lg-9">
+                    @Html.DisplayFor(model => model.Type, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.Status, new { @class = "col-lg-1 control-label" })
+                <div class="col-lg-9">
+                    @Html.DisplayFor(model => model.Status, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.DueDate, new { @class = "col-lg-1 control-label" })
+                <div class="col-lg-9">
+                    @Html.DisplayFor(model => model.DueDate, new { @class = "form-control" })
+                </div>
+            </div>
+                     
+                          
+            
+             <table class="table" style="margin: 4px">
+             <thead class="thead-dark">
+                 <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Name)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Amount)
+                    </th>
+                    
+                    <th>
+                        Action
+                    </th>
+
+                    <th></th>
+                </tr>
+                @foreach (var item in Model.InvoiceItems)
+                {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(x => item.Name)
+                        </td>
+                        <td>            
+                            @Html.DisplayFor(x => item.Amount)
+                        </td>
+                       
+                        <td>
+                           
+                            @Html.ActionLink("Delete", "DeleteInvoice", new { id = item.Id }, new { @class = "btn btn-warning" })
+                           
+
+                        </td>
+                    </tr>
+                }
+            </table>
+            @using (Html.BeginForm())
+            {
+                <div class="form-group">
+                    <div class="col-lg-1"></div>
+                    <div class="col-lg-9">
+                        @Html.ActionLink("Edit", "CreateEditBook", new { id = Model.Id }, new { @class = "btn btn-primary" })
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-success" })
+                        @Html.ActionLink("Add New Item", "CreateInvoiceItem", new { id = Model.Id }, new { @class = "btn btn-success" })
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+

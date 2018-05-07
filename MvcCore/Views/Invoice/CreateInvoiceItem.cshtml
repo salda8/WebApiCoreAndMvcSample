@@ -1,0 +1,58 @@
+﻿@model WebApiNetCore.Dtos.InvoiceItemCreateDto
+
+@{
+    ViewData["Title"] = "View";
+}
+
+<h2>View</h2>
+
+<h4>InvoiceItemCreateDto</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+       <div class="panel-body">
+        @using (Html.BeginForm("CreateInvoiceItem", "Invoice", FormMethod.Post))
+        {       
+            <div class="form-horizontal">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Name, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Name, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Type, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Type, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.InvoiceId, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.InvoiceId, new { @class = "form-control" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Amount, new { @class = "col-lg-1 control-label" })
+                    <div class="col-lg-9">
+                        @Html.TextBoxFor(model => model.Amount, new { @class = "form-control datepicker" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-lg-8"></div>
+                    <div class="col-lg-3">
+                        @Html.ActionLink("Back to List", "Index", null, new { @class = "btn btn-default" })
+                        <button class="btn btn-success" id="btnSubmit" type="submit">
+                            Submit
+                        </button>
+                    </div>
+                </div>
+            </div>       
+        }
+    </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

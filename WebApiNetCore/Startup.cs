@@ -48,12 +48,11 @@ namespace WebApiNetCore
 
             var sercret = new AppSecrets() { Secret = Configuration["Secret"] };
             services.AddSingleton(sercret);
-
-            services.AddSingleton<ISeedDataService, SeedDataService>();
+            services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(Configuration.GetConnectionString("InvoiceDatabase")));
             services.AddScoped<IInvoiceContext, InvoiceContext>();
+            services.AddScoped<ISeedDataService, SeedDataService>();
             services.AddScoped<IInvoiceRepository, InvoiceRepository>();
             services.AddScoped<IInvoiceItemRepository, InvoiceItemRepository>();
-
             services.AddRouting(options => options.LowercaseUrls = true);
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
             services.AddScoped<IUrlHelper>(implementationFactory =>
@@ -62,7 +61,10 @@ namespace WebApiNetCore
                 .ActionContext;
                 return new UrlHelper(actionContext);
             });
-
+            // Build the intermediate service provider
+            var serviceProvider = services.BuildServiceProvider();
+            var data= serviceProvider.GetService<ISeedDataService>();
+            data.EnsureSeedData();
             services.AddMvcCore().AddVersionedApiExplorer(
                 options =>
                 {
@@ -75,8 +77,9 @@ namespace WebApiNetCore
             services.AddMvc().AddJsonOptions(options =>
             {
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
-            services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(Configuration.GetConnectionString("InvoiceDatabase")));
+          
             services.AddApiVersioning(o => o.ReportApiVersions = true);
 
             services.AddSwaggerGen(
@@ -138,17 +141,17 @@ namespace WebApiNetCore
                     }
                 });
 
-            app.AddSeedData();
+            //app.AddSeedData();
 
             app.UseDefaultFiles();
 
             app.UseCors("AllowAllOrigins");
             AutoMapper.Mapper.Initialize(mapper =>
                       {
-                          mapper.CreateMap<Invoice, InvoiceDto>().ReverseMap();
-                          mapper.CreateMap<Invoice, InvoiceUpdateDto>().ReverseMap();
-                          mapper.CreateMap<Invoice, InvoiceCreateDto>().ReverseMap();
-                          mapper.CreateMap<InvoiceItem, InvoiceCreateDto>().ReverseMap();
+                          mapper.CreateMap<Invoice, InvoiceDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                          mapper.CreateMap<Invoice, InvoiceUpdateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                          mapper.CreateMap<Invoice, InvoiceCreateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
+                          mapper.CreateMap<InvoiceItem, InvoiceItemCreateDto>().ReverseMap().ForAllMembers(opts => opts.Condition((src, dest, srcMember) => srcMember != null));
                       });
             app.UseMvc();
         }
