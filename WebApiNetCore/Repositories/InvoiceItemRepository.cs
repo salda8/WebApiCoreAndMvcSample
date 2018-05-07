@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using AutoMapper;
+﻿using AutoMapper;
 using DataStructures.Dtos;
+using System;
+using System.Collections.Generic;
 using WebApiNetCore.Entities;
 
 namespace WebApiNetCore.Repositories
@@ -14,7 +14,7 @@ namespace WebApiNetCore.Repositories
 
         public InvoiceItemDto GetSingle(int id)
         {
-            return Mapper.Map<InvoiceItemDto>(SingleOrDefault<InvoiceItem>(x => x.Id == id && x.IsDeleted==false));
+            return Mapper.Map<InvoiceItemDto>(SingleOrDefault<InvoiceItem>(x => x.Id == id && x.IsDeleted == false));
         }
 
         public IEnumerable<InvoiceItemDto> GetAll()
@@ -38,12 +38,12 @@ namespace WebApiNetCore.Repositories
             UpdateInvoiceAmount(invoiceItem);
         }
 
-        private void UpdateInvoiceAmount(InvoiceItem invoiceItem, bool substractAmount =false)
+        private void UpdateInvoiceAmount(InvoiceItem invoiceItem, bool substractAmount = false)
         {
             var invoice = SingleOrDefault<Invoice>(x => x.Id == invoiceItem.InvoiceId);
             if (invoice != null)
             {
-                if (substractAmount)    
+                if (substractAmount)
                 {
                     invoice.Amount -= invoiceItem.Amount;
                 }

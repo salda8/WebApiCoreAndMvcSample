@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using RestSharp;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using RestSharp;
 using RestSharp.Serializers;
+using System;
+using System.IO;
 using JsonSerializer = Newtonsoft.Json.JsonSerializer;
 
 namespace MvcCore.Api

@@ -1,6 +1,4 @@
-﻿
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using WebApiNetCore.Repositories;
 
@@ -21,7 +19,7 @@ namespace WebApiNetCore.Middleware
         {
             if (!context.Request.Headers.Keys.Contains("x-api-key"))
             {
-                context.Response.StatusCode = 400; //Bad Request                
+                context.Response.StatusCode = 400; //Bad Request
                 await context.Response.WriteAsync("User Key is missing");
                 return;
             }
@@ -37,9 +35,5 @@ namespace WebApiNetCore.Middleware
 
             await _next.Invoke(context);
         }
-
     }
-
-   
-  
 }

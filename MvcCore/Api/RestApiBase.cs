@@ -1,13 +1,13 @@
+using DataStructures.Dtos;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using RestSharp;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using DataStructures.Dtos;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using RestSharp;
 
 namespace MvcCore.Api
 {
@@ -96,14 +96,14 @@ namespace MvcCore.Api
         protected virtual T Execute<T>(IRestRequest request) where T : Dto, new()
         {
             var stopWatch = new Stopwatch();
-           
+
             IRestResponse response = null;
             try
             {
                 stopWatch.Start();
                 response = Client.Execute(request);
                 stopWatch.Stop();
-                
+
                 switch (response.StatusCode)
                 {
                     case HttpStatusCode.BadRequest:
@@ -128,7 +128,6 @@ namespace MvcCore.Api
             {
                 LogRequest(request, response, stopWatch.ElapsedMilliseconds);
             }
-
         }
 
         /// <summary>
@@ -172,7 +171,6 @@ namespace MvcCore.Api
             {
                 LogRequest(request, response, stopWatch.ElapsedMilliseconds);
             }
-
         }
 
         /// <summary>
@@ -205,7 +203,6 @@ namespace MvcCore.Api
                 headers = response.Headers,
                 responseUri = response.ResponseUri,
                 errorMessage = response.ErrorMessage,
-
             };
 
             Logger.LogInformation(
@@ -217,7 +214,6 @@ namespace MvcCore.Api
     {
         public ApiException(string message) : base(message)
         {
-          
         }
     }
 }

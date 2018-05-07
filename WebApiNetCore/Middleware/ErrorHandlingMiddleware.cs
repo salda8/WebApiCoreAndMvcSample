@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
 using System;
 using System.Net;
@@ -31,14 +30,12 @@ public class ErrorHandlingMiddleware
         var code = HttpStatusCode.InternalServerError; // 500 if unexpected
 
         //if (exception is MyNotFoundException) code = HttpStatusCode.NotFound;
-       // else if (exception is MyUnauthorizedException) code = HttpStatusCode.Unauthorized;
-      //  else if (exception is MyException) code = HttpStatusCode.BadRequest;
+        // else if (exception is MyUnauthorizedException) code = HttpStatusCode.Unauthorized;
+        //  else if (exception is MyException) code = HttpStatusCode.BadRequest;
 
         var result = JsonConvert.SerializeObject(new { error = exception.Message });
         context.Response.ContentType = "application/json";
         context.Response.StatusCode = (int)code;
         return context.Response.WriteAsync(result);
     }
-
-   
 }

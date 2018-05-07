@@ -1,10 +1,7 @@
-﻿
-using System.Linq;
-
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Primitives;
-
+using System.Linq;
 
 namespace WebApiNetCore
 {
@@ -21,6 +18,4 @@ namespace WebApiNetCore
             }
         }
     }
-
-    
 }

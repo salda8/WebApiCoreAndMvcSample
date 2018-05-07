@@ -13,7 +13,6 @@ namespace DataStructures.Dtos
 
         public DateTime DueDate { get; set; }
         public DateTime Created { get; set; }
-        public IEnumerable<InvoiceItemDto> InvoiceItems{ get; set; }
-        
+        public IEnumerable<InvoiceItemDto> InvoiceItems { get; set; }
     }
 }

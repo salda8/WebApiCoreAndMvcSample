@@ -6,7 +6,7 @@
 }
 @section scripts{
     <script type="text/javascript">
-      $(document).ready(function () {
+    $(document).ready(function () {
         $(".datepicker").datepicker({ format: 'dd.mm.yyyy', autoclose: true, todayBtn: 'linked' })
     });
     </script>
@@ -15,7 +15,7 @@
     <div class="panel-heading panel-head">Add / Edit Invoice</div>
     <div class="panel-body">
         @using (Html.BeginForm("CreateEditInvoice", "Invoice", FormMethod.Post))
-        {       
+        {
             <div class="form-horizontal">
                 <div class="form-group">
                     @Html.LabelFor(model => model.Name, new { @class = "col-lg-1 control-label" })
@@ -50,8 +50,7 @@
                         </button>
                     </div>
                 </div>
-            </div>       
+            </div>
         }
     </div>
 </div>
-

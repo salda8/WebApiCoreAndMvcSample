@@ -36,9 +36,7 @@
                     @Html.DisplayFor(model => model.DueDate, new { @class = "form-control" })
                 </div>
             </div>
-                     
-                          
-            
+
              <table class="table" style="margin: 4px">
              <thead class="thead-dark">
                  <tr>
@@ -48,7 +46,7 @@
                     <th>
                         @Html.DisplayNameFor(model => model.Amount)
                     </th>
-                    
+
                     <th>
                         Action
                     </th>
@@ -61,15 +59,13 @@
                         <td>
                             @Html.DisplayFor(x => item.Name)
                         </td>
-                        <td>            
+                        <td>
                             @Html.DisplayFor(x => item.Amount)
                         </td>
-                       
-                        <td>
-                           
-                            @Html.ActionLink("Delete", "DeleteInvoiceItem", new { id = item.Id }, new { @class = "btn btn-warning" })
-                           
 
+                        <td>
+
+                            @Html.ActionLink("Delete", "DeleteInvoiceItem", new { id = item.Id }, new { @class = "btn btn-warning" })
                         </td>
                     </tr>
                 }
@@ -88,5 +84,3 @@
         </div>
     </div>
 </div>
-
-

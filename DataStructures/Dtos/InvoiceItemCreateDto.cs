@@ -6,12 +6,13 @@ namespace DataStructures.Dtos
     {
         [Required]
         public string Name { get; set; }
+
         public string Type { get; set; }
+
         [Required]
         public int Amount { get; set; }
+
         [Required]
         public int InvoiceId { get; set; }
-       
     }
 }
-

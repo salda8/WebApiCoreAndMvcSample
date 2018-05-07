@@ -51,7 +51,6 @@ namespace WebApiNetCore
                     });
             });
 
-           
             services.AddDbContext<InvoiceContext>(options => options.UseSqlServer(Configuration.GetConnectionString("InvoiceDatabase")));
             services.AddSingleton<ISecretRepository, SecretRepository>();
             services.AddScoped<IInvoiceContext, InvoiceContext>();
@@ -68,7 +67,7 @@ namespace WebApiNetCore
             });
             // Build the intermediate service provider
             var serviceProvider = services.BuildServiceProvider();
-            var data= serviceProvider.GetService<ISeedDataService>();
+            var data = serviceProvider.GetService<ISeedDataService>();
             data.EnsureSeedData();
             services.AddMvcCore().AddVersionedApiExplorer(
                 options =>
@@ -84,9 +83,8 @@ namespace WebApiNetCore
                 options.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                 options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
             });
-          
-            services.AddApiVersioning(o => o.ReportApiVersions = true);
 
+            services.AddApiVersioning(o => o.ReportApiVersions = true);
 
             // ===== Add Identity ========
             services.AddIdentity<IdentityUser, IdentityRole>()
@@ -101,7 +99,6 @@ namespace WebApiNetCore
                     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-
                 })
                 .AddJwtBearer(cfg =>
                 {
@@ -115,8 +112,6 @@ namespace WebApiNetCore
                         ClockSkew = System.TimeSpan.Zero // remove delay of token when expire
                     };
                 });
-
-
 
             services.AddSwaggerGen(
                 options =>
@@ -166,7 +161,7 @@ namespace WebApiNetCore
                     });
                 });
             }
-            
+
             app.UseSwagger();
             app.UseSwaggerUI(
                 options =>

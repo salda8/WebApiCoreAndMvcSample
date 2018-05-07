@@ -39,8 +39,8 @@ namespace MvcCore.Api
             ApiVersion = configuration.ApiVersion;
         }
 
-        public string ApiVersion { get; set; } 
-        public string Secretkey { get; set; } 
+        public string ApiVersion { get; set; }
+        public string Secretkey { get; set; }
 
         /// <summary>
         /// Posts the dto synchronize.

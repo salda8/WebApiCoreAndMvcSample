@@ -89,5 +89,5 @@ namespace MvcCore.Controllers
             var response = client.PatchDtoSync(id, ApiResources.Invoice);
             return RedirectToAction(nameof(Index));
         }
-        }
+    }
 }

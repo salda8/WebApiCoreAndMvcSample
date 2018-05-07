@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using NLog;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Microsoft.EntityFrameworkCore;
-using NLog;
 using WebApiNetCore.Entities;
 
 namespace WebApiNetCore.Repositories
@@ -52,6 +52,7 @@ namespace WebApiNetCore.Repositories
         {
             return GetAllInner<T>();
         }
+
         /// <summary>
         ///     Gets all entities. If maxRows is supplied, the query will throw an exception if more than that number of rows were
         ///     to be returned.
@@ -60,7 +61,7 @@ namespace WebApiNetCore.Repositories
         /// <returns></returns>
         public IEnumerable<T> GetAllNotDeleted<T>() where T : class, IEntity
         {
-            return GetAllInner<T>().Where(x=>x.IsDeleted==false);
+            return GetAllInner<T>().Where(x => x.IsDeleted == false);
         }
 
         /// <summary>
@@ -145,6 +146,7 @@ namespace WebApiNetCore.Repositories
         {
             Context.DbContext.Set<T>().Update(entity);
         }
+
         /// <summary>
         /// Updates the specified property of entity.
         /// </summary>
@@ -163,6 +165,7 @@ namespace WebApiNetCore.Repositories
             Context.DbContext.Set<T>().Attach(entity);
             Context.DbContext.Entry(entity).Property("IsDeleted").IsModified = true;
         }
+
         /// <summary>
         /// Check if entity exists in database.
         /// </summary>

@@ -13,7 +13,7 @@
     <div class="col-md-4">
        <div class="panel-body">
         @using (Html.BeginForm("CreateInvoiceItem", "Invoice", FormMethod.Post))
-        {       
+        {
             <div class="form-horizontal">
                 <div class="form-group">
                     @Html.LabelFor(model => model.Name, new { @class = "col-lg-1 control-label" })
@@ -48,7 +48,7 @@
                         </button>
                     </div>
                 </div>
-            </div>       
+            </div>
         }
     </div>
     </div>

@@ -1,4 +1,3 @@
-
 namespace MvcCore.Api
 {
     /// <summary>
@@ -21,16 +20,11 @@ namespace MvcCore.Api
 
         public ApiConfiguration()
         {
-            
         }
 
         public string ApiVersion { get; set; }
         public string Endpoint { get; set; }
 
         public string SecretKey { get; set; }
-
-        
-
-       
     }
 }

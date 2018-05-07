@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore;
 using MvcCore.Api;
+using System;
 using WebMarkupMin.AspNetCore2;
-using RestSharp;
 
 namespace MvcCore
 {
@@ -29,7 +25,7 @@ namespace MvcCore
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
-            
+
                 .UseStartup<Startup>()
                 .Build();
 
@@ -41,7 +37,7 @@ namespace MvcCore
             services.AddResponseCaching();
             services.AddMvc();
 
-            var apiConfiguration = new ApiConfiguration(Configuration["ApiSecret"], Configuration.GetSection("ApiVersion").Value,Configuration.GetSection("Endpoint").Value);
+            var apiConfiguration = new ApiConfiguration(Configuration["ApiSecret"], Configuration.GetSection("ApiVersion").Value, Configuration.GetSection("Endpoint").Value);
             //IRestClient restClient = new RestSharp.RestClient(Configuration.GetSection("ApiEndpoint").Value);
             services.AddSingleton(apiConfiguration);
             //services.AddSingleton(restClient);
@@ -86,7 +82,7 @@ namespace MvcCore
                     };
                 }
             });
-          
+
             app.UseWebMarkupMin();
 
             app.UseMvc(routes =>
@@ -95,7 +91,6 @@ namespace MvcCore
                     name: "default",
                     template: "{controller=Invoice}/{action=Index}/{id?}");
             });
-
         }
     }
 }

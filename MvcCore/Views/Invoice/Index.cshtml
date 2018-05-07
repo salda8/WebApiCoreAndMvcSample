@@ -17,7 +17,7 @@
                  <th>
                      @Html.DisplayNameFor(model => model.Amount)
                  </th>
-                    
+
                  <th>
                      @Html.DisplayNameFor(model => model.DueDate)
                  </th>
@@ -33,17 +33,17 @@
 
                  <th></th>
              </tr>
-                @if(Model!=null && Model.Any()) { 
+                @if(Model!=null && Model.Any()) {
                 foreach (var item in Model)
                 {
                     <tr>
                         <td>
                             @Html.DisplayFor(x => item.Name)
                         </td>
-                        <td>            
+                        <td>
                             @Html.DisplayFor(x => item.Amount)
                         </td>
-                                               
+
                         <td>
                             @Html.DisplayFor(x => item.DueDate)
                         </td>
@@ -58,8 +58,6 @@
                             @Html.ActionLink("Details", "DetailInvoice", new { id = item.Id }, new { @class = "btn btn-primary" })
                             @Html.ActionLink("Pay", "PayInvoice", new { id = item.Id }, new { @class = "btn btn-danger" })
                             @Html.ActionLink("Delete", "DeleteInvoice", new { id = item.Id }, new { @class = "btn btn-warning" })
-                           
-
                         </td>
                     </tr>
                 }
@@ -67,5 +65,3 @@
             </table>
     </div>
 </div>
-
-

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using WebApiNetCore.Repositories;
+﻿using WebApiNetCore.Repositories;
 
 namespace WebApiNetCore
 {
@@ -14,7 +10,5 @@ namespace WebApiNetCore
         {
             this.invoiceRepository = invoiceRepository;
         }
-
-
     }
 }

@@ -11,6 +11,7 @@ namespace WebApiNetCore
         {
             BuildWebHost2(args).Run();
         }
+
         //https://github.com/aspnet/EntityFrameworkCore/issues/9033
         public static IWebHost BuildWebHost2(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
@@ -25,8 +26,8 @@ namespace WebApiNetCore
 
                     config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                             .AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
-                   
                 })
+
             
                 .Build();
     }

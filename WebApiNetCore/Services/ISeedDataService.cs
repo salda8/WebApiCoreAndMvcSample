@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace WebApiNetCore.Services
+﻿namespace WebApiNetCore.Services
 {
     public interface ISeedDataService
     {
