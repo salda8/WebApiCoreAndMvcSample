@@ -1,6 +1,6 @@
 ﻿using DataStructures.Dtos;
 using System.Collections.Generic;
-using WebApiNetCore.Models;
+
 
 namespace WebApiNetCore.Repositories
 {
@@ -12,7 +12,7 @@ namespace WebApiNetCore.Repositories
 
         void Delete(int id);
 
-        IEnumerable<InvoiceDto> GetAll(QueryParameters queryParameters);
+        IEnumerable<InvoiceDto> GetAll();
 
         InvoiceDto GetSingle(int id);
 

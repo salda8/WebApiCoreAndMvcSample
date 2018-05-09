@@ -6,7 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Dynamic.Core;
 using WebApiNetCore.Entities;
-using WebApiNetCore.Models;
+using WebApiNetCore.Helpers;
+
 
 namespace WebApiNetCore.Repositories
 {
@@ -30,10 +31,7 @@ namespace WebApiNetCore.Repositories
         public InvoiceDto ChangeStatus(int id, Status status)
         {
             var invoice = base.SingleOrDefault<Invoice>(x => x.Id == id);
-            if (invoice == null)
-            {
-                return null;
-            }
+            ExceptionHelpers.ThrowNotFoundIfNull(invoice, nameof(invoice), id);
             invoice.Status = status;
             UpdateSingleProperty(invoice, "Status");
 
@@ -43,11 +41,14 @@ namespace WebApiNetCore.Repositories
 
         public void Delete(int id)
         {
-            SetDeleted(base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted), true);
+            var invoice = base.SingleOrDefault<Invoice>(x => x.Id == id && !x.IsDeleted);
+            ExceptionHelpers.ThrowNotFoundIfNull(invoice, nameof(invoice), id);
+            SetDeleted(invoice, true);
             Save();
         }
 
-        public IEnumerable<InvoiceDto> GetAll(QueryParameters queryParameters)
+
+        public IEnumerable<InvoiceDto> GetAll()
         {
             var toReturn = Context.Invoice.Where(x => !x.IsDeleted)
                 .Select(x =>
@@ -67,7 +68,7 @@ namespace WebApiNetCore.Repositories
 
         public InvoiceDto GetSingle(int id)
         {
-            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
+            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted)?.Include(x => x.InvoiceItems).SingleOrDefault();
             if (invoice == null)
             {
                 return null;
@@ -85,7 +86,8 @@ namespace WebApiNetCore.Repositories
         public InvoiceDto Update(int id, InvoiceUpdateDto item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));
-            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted).Include(x => x.InvoiceItems).SingleOrDefault();
+            var invoice = base.FindInner<Invoice>(x => x.Id == id && !x.IsDeleted)?.Include(x => x.InvoiceItems).SingleOrDefault();
+            ExceptionHelpers.ThrowNotFoundIfNull(invoice, nameof(invoice), id);
             invoice = Mapper.Map(item, invoice);
             base.Update(invoice);
             SaveChanges();

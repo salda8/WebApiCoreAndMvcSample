@@ -9,7 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebApiNetCore", "WebApiNetC
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MvcCore", "MvcCore\MvcCore.csproj", "{C2C292C2-5DE3-478E-BB0E-90AED60075CD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataStructures", "DataStructures\DataStructures.csproj", "{B80150D2-145C-497E-BFBD-7462F531F2DE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataStructures", "DataStructures\DataStructures.csproj", "{B80150D2-145C-497E-BFBD-7462F531F2DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebApplication1", "WebApplication1\WebApplication1.csproj", "{F09C314A-8F11-44A9-BC93-CBEAE1CD03E6}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{AACE6243-B9DB-460A-9836-A4365983FDCA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -29,6 +33,14 @@ Global
 		{B80150D2-145C-497E-BFBD-7462F531F2DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B80150D2-145C-497E-BFBD-7462F531F2DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B80150D2-145C-497E-BFBD-7462F531F2DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F09C314A-8F11-44A9-BC93-CBEAE1CD03E6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F09C314A-8F11-44A9-BC93-CBEAE1CD03E6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F09C314A-8F11-44A9-BC93-CBEAE1CD03E6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F09C314A-8F11-44A9-BC93-CBEAE1CD03E6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AACE6243-B9DB-460A-9836-A4365983FDCA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AACE6243-B9DB-460A-9836-A4365983FDCA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AACE6243-B9DB-460A-9836-A4365983FDCA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AACE6243-B9DB-460A-9836-A4365983FDCA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

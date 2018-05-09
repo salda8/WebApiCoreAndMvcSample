@@ -4,15 +4,15 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using WebApiNetCore.Models;
+
 using WebApiNetCore.Repositories;
 
 namespace WebApiNetCore.Controllers
 {
     [ApiVersion("1.0")]
     [Route("api/[controller]")]
-    [AuthenticationFilter]
     [SwaggerResponse(400, typeof(BadRequestResult), "Error when model state validation failes")]
+
     public class InvoiceController : Controller
     {
         private readonly IInvoiceRepository invoiceRepository;
@@ -44,10 +44,7 @@ namespace WebApiNetCore.Controllers
 
         [SwaggerResponse(201, typeof(IEnumerable<InvoiceDto>))]
         [HttpGet(Name = nameof(GetAllInvoices))]
-        public IActionResult GetAllInvoices([FromQuery, Required] QueryParameters queryParameters)
-        {
-            return Ok(invoiceRepository.GetAll(queryParameters).ToList());
-        }
+        public IActionResult GetAllInvoices() => Ok(invoiceRepository.GetAll().ToList());
 
         [HttpGet]
         [SwaggerResponse(201, typeof(InvoiceDto))]
@@ -86,9 +83,6 @@ namespace WebApiNetCore.Controllers
         [ValidateModelState]
         [SwaggerResponse(201, typeof(InvoiceDto))]
         [Route("{id:int}", Name = nameof(UpdateInvoice))]
-        public IActionResult UpdateInvoice(int id, [FromBody]InvoiceUpdateDto invoiceUpdateDto)
-        {
-            return Ok(invoiceRepository.Update(id, invoiceUpdateDto));
-        }
+        public IActionResult UpdateInvoice(int id, [FromBody]InvoiceUpdateDto invoiceUpdateDto) => Ok(invoiceRepository.Update(id, invoiceUpdateDto));
     }
 }

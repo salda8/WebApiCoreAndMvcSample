@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Threading.Tasks;
 using WebApiNetCore.Repositories;
 
@@ -19,7 +20,7 @@ namespace WebApiNetCore.Middleware
         {
             if (!context.Request.Headers.Keys.Contains("x-api-key"))
             {
-                context.Response.StatusCode = 400; //Bad Request
+                context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 await context.Response.WriteAsync("User Key is missing");
                 return;
             }
@@ -27,7 +28,7 @@ namespace WebApiNetCore.Middleware
             {
                 if (!ContactsRepo.CheckValidUserSecret(context.Request.Headers["x-api-key"]))
                 {
-                    context.Response.StatusCode = 401; //UnAuthorized
+                    context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
                     await context.Response.WriteAsync("Invalid User Key");
                     return;
                 }
