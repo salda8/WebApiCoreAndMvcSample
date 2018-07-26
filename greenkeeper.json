@@ -1,0 +1,10 @@
+{
+  "groups": {
+    "default": {
+      "packages": [
+        "MvcCore/package.json",
+        "WebApplication1/package.json"
+      ]
+    }
+  }
+}
