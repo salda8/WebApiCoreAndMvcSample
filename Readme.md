@@ -1,5 +1,7 @@
 # ASP.NET Core WebApi Sample with HATEOAS, Versioning & Swagger
 
+[![Greenkeeper badge](https://badges.greenkeeper.io/salda8/WebApiCoreAndMvcSample.svg)](https://greenkeeper.io/)
+
 In this repository is .NET Testing Assignment. 
 
 TASK:
